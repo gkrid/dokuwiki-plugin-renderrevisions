@@ -7,3 +7,5 @@
  */
 
 $meta['maxfrequency'] = array('numeric', '_min' => 0);
+$meta['skipRegex'] = array('string');
+$meta['matchRegex'] = array('string');

@@ -51,13 +51,27 @@ class action_plugin_renderrevisions extends ActionPlugin
         if (!$cacheObject->page) return;
         if ($cacheObject->mode !== 'xhtml') return;
 
+        // only process pages that match both the skip and match regex
+
+        $page = $cacheObject->page;
+        try {
+            [$skipRE, $matchRE] = $this->getRegexps();
+        } catch (\Exception $e) {
+            msg(hsc($e->getMessage()), -1);
+            return;
+        }
+        if (
+            ($skipRE && preg_match($skipRE, ":$page")) ||
+            ($matchRE && !preg_match($matchRE, ":$page"))
+        ) {
+            return;
+        }
+
         // remember that this page was processed
         // This is a somewhat ugly workaround for when text snippets are rendered within the same page.
         // Those snippets will not have a page context set during cache use event and thus not be processed
         // later on in the RENDERER_CONTENT_POSTPROCESS event
-        $this->pages[$cacheObject->page] = true;
-
-        msg("This is before rendering {$cacheObject->page}");
+        $this->pages[$page] = true;
     }
 
 
@@ -130,5 +144,37 @@ class action_plugin_renderrevisions extends ActionPlugin
     {
         if ($this->current !== $event->data['id']) return;
         $event->data['contentChanged'] = true;
+    }
+
+
+    /**
+     * Read the skip and match regex from the config
+     *
+     * Ensures the regular expressions are valid
+     *
+     * @return string[] [$skipRE, $matchRE]
+     * @throws \Exception if the regular expressions are invalid
+     */
+    protected function getRegexps()
+    {
+        $skip = $this->getConf('skipRegex');
+        $skipRE = '';
+        $match = $this->getConf('matchRegex');
+        $matchRE = '';
+
+        if ($skip) {
+            $skipRE = '/' . $skip . '/';
+            if (@preg_match($skipRE, '') === false) {
+                throw new \Exception('Invalid regular expression in $conf[\'skipRegex\']. ' . preg_last_error_msg());
+            }
+        }
+
+        if ($match) {
+            $matchRE = '/' . $match . '/';
+            if (@preg_match($matchRE, '') === false) {
+                throw new \Exception('Invalid regular expression in $conf[\'matchRegex\']. ' . preg_last_error_msg());
+            }
+        }
+        return [$skipRE, $matchRE];
     }
 }
