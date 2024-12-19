@@ -126,7 +126,7 @@ class action_plugin_renderrevisions extends ActionPlugin
 
         // time to create a new revision
         $this->current = $ID;
-        (new PageFile($ID))->saveWikiText(rawWiki($ID), 'Automatic revision due to content change');
+        (new PageFile($ID))->saveWikiText(rawWiki($ID), $this->getLang('summary'));
         $this->current = null;
     }
 
