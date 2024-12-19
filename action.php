@@ -155,7 +155,7 @@ class action_plugin_renderrevisions extends ActionPlugin
      * @return string[] [$skipRE, $matchRE]
      * @throws \Exception if the regular expressions are invalid
      */
-    protected function getRegexps()
+    public function getRegexps()
     {
         $skip = $this->getConf('skipRegex');
         $skipRE = '';
