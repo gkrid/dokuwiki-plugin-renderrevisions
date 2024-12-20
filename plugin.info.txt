@@ -1,7 +1,7 @@
 base   renderrevisions
 author Andreas Gohr
 email  dokuwiki@cosmocode.de
-date   2024-12-16
+date   2024-12-19
 name   renderrevisions plugin
 desc   Create new page revision if render output changed
 url    https://www.dokuwiki.org/plugin:renderrevisions
