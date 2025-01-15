@@ -75,6 +75,7 @@ class action_plugin_renderrevisions extends ActionPlugin
     }
 
 
+
     /**
      * Event handler for RENDERER_CONTENT_POSTPROCESS
      *
@@ -100,6 +101,9 @@ class action_plugin_renderrevisions extends ActionPlugin
         if (!$INFO['exists']) return;
         if (!$ID) return;
         if (!isset($this->pages[$ID])) return;
+
+        // all the above still does not ensure we skip sub renderings, so this is our last resort
+        if(count(array_filter(debug_backtrace(), fn($t) => $t['function'] === 'p_render')) > 1) return;
 
         $md5cache = getCacheName($ID, '.renderrevision');
 
