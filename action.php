@@ -75,7 +75,6 @@ class action_plugin_renderrevisions extends ActionPlugin
     }
 
 
-
     /**
      * Event handler for RENDERER_CONTENT_POSTPROCESS
      *
@@ -103,7 +102,7 @@ class action_plugin_renderrevisions extends ActionPlugin
         if (!isset($this->pages[$ID])) return;
 
         // all the above still does not ensure we skip sub renderings, so this is our last resort
-        if(count(array_filter(debug_backtrace(), fn($t) => $t['function'] === 'p_render')) > 1) return;
+        if (count(array_filter(debug_backtrace(), fn($t) => $t['function'] === 'p_render')) > 1) return;
 
         $md5cache = getCacheName($ID, '.renderrevision');
 
@@ -112,6 +111,14 @@ class action_plugin_renderrevisions extends ActionPlugin
         // we store the new render result and are done
         if (!file_exists($md5cache) || filemtime(wikiFN($ID)) > filemtime($md5cache)) {
             file_put_contents($md5cache, md5($xhtml));
+
+            if($this->getConf('store')) {
+                /** @var helper_plugin_renderrevisions_storage $storage */
+                $storage = plugin_load('helper', 'renderrevisions_storage');
+                $storage->saveRevision($ID, filemtime(wikiFN($ID)), $xhtml);
+                $storage->cleanUp($ID);
+            }
+
             return;
         }
 
@@ -133,6 +140,7 @@ class action_plugin_renderrevisions extends ActionPlugin
         (new PageFile($ID))->saveWikiText(rawWiki($ID), $this->getLang('summary'));
         $this->current = null;
     }
+
 
     /**
      * Event handler for COMMON_WIKIPAGE_SAVE
