@@ -26,6 +26,9 @@ class cli_plugin_renderrevisions extends \dokuwiki\Extension\CLIPlugin
     /** @inheritDoc */
     protected function main(Options $options)
     {
+        global $INFO;
+        global $ID;
+
         $indexer = new Indexer();
         $pages = $indexer->getPages();
 
@@ -44,6 +47,9 @@ class cli_plugin_renderrevisions extends \dokuwiki\Extension\CLIPlugin
             $this->notice("Processing $page");
             $file = wikiFN($page);
             try {
+                $ID = $page;
+                $INFO = pageinfo();
+
                 p_cached_output($file, 'xhtml', $page);
             } catch (\Exception $e) {
                 $this->error("Issues while rendering $page: " . $e->getMessage());
