@@ -28,6 +28,7 @@ class cli_plugin_renderrevisions extends \dokuwiki\Extension\CLIPlugin
     {
         global $INFO;
         global $ID;
+        global $ACT;
 
         $indexer = new Indexer();
         $pages = $indexer->getPages();
@@ -49,6 +50,7 @@ class cli_plugin_renderrevisions extends \dokuwiki\Extension\CLIPlugin
             try {
                 $ID = $page;
                 $INFO = pageinfo();
+                $ACT = 'show';
 
                 p_cached_output($file, 'xhtml', $page);
             } catch (\Exception $e) {
