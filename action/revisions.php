@@ -49,13 +49,13 @@ class action_plugin_renderrevisions_revisions extends ActionPlugin
         for ($i = 0; $i < $elementCount; $i++) {
             $element = $form->getElementAt($i);
             if (!$element instanceof HTMLElement) continue;
-            if (!preg_match('/\?rev=(\d+)/', $element->val(), $match)) continue;
+            if (!preg_match('/[;&?]rev=(\d+)/', $element->val(), $match)) continue;
             $rev = (int)$match[1];
             if (!$rev) continue;
             if (!$storage->hasRevision($id, $rev)) continue;
 
             $html = $element->val();
-            $html = preg_replace('/(\?rev=\d+)/', '\\1&amp;do=renderrevisions', $html);
+            $html = preg_replace('/([;&?]rev=\d+)/', '\\1&amp;do=renderrevisions', $html);
             $html = preg_replace('/class="wikilink1"/', 'class="wikilink1 renderrevisions"', $html);
             $element->val($html);
         }
