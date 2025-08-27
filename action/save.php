@@ -105,14 +105,15 @@ class action_plugin_renderrevisions_save extends ActionPlugin
         if (count(array_filter(debug_backtrace(), fn($t) => $t['function'] === 'p_render')) > 1) return;
 
         $md5cache = getCacheName($ID, '.renderrevision');
+        $md5xhtml = $this->getContentHash($xhtml);
 
         // no or outdated MD5 cache, create new one
         // this means a new revision of the page has been created naturally
         // we store the new render result and are done
         if (!file_exists($md5cache) || filemtime(wikiFN($ID)) > filemtime($md5cache)) {
-            file_put_contents($md5cache, md5($xhtml));
+            file_put_contents($md5cache, $md5xhtml);
 
-            if($this->getConf('store')) {
+            if ($this->getConf('store')) {
                 /** @var helper_plugin_renderrevisions_storage $storage */
                 $storage = plugin_load('helper', 'renderrevisions_storage');
                 $storage->saveRevision($ID, filemtime(wikiFN($ID)), $xhtml);
@@ -131,7 +132,7 @@ class action_plugin_renderrevisions_save extends ActionPlugin
         $oldMd5 = file_get_contents($md5cache);
 
         // did the rendered content change?
-        if ($oldMd5 === md5($xhtml)) {
+        if ($oldMd5 === $md5xhtml) {
             return;
         }
 
@@ -188,5 +189,17 @@ class action_plugin_renderrevisions_save extends ActionPlugin
             }
         }
         return [$skipRE, $matchRE];
+    }
+
+    /**
+     * Get the hash for the given content
+     *
+     * Strips all whitespace and HTML tags to ensure only real content changes are detected
+     *
+     * @param string $xhtml
+     */
+    protected function getContentHash($xhtml): string
+    {
+        return md5(preg_replace('/\s+/', '', strip_tags($xhtml)));
     }
 }
