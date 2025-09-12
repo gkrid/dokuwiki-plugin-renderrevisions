@@ -30,6 +30,8 @@ class cli_plugin_renderrevisions extends \dokuwiki\Extension\CLIPlugin
         global $ID;
         global $ACT;
 
+        auth_setup(); // make sure ACLs are initialized
+
         $indexer = new Indexer();
         $pages = $indexer->getPages();
 
